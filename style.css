@@ -131,15 +131,19 @@ h1 {
     box-shadow: inset 0 -3px 6px rgba(0,0,0,0.2);
 }
 
-.contact-section {
+.contact-section, .disqus-section {
     margin-top: 40px;
     padding-top: 20px;
 }
 
-.contact-section hr {
+.contact-section hr, .disqus-section hr {
     border: 0;
     border-top: 1px solid var(--border-color);
     margin-bottom: 30px;
+}
+
+.disqus-section h2 {
+    margin-bottom: 20px;
 }
 
 .contact-form {
