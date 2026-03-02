@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+아<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +12,26 @@
         <h1>Lotto Number Generator</h1>
         <button id="generate-btn">Generate Numbers</button>
         <div id="results" class="results-grid"></div>
+
+        <div class="contact-section">
+            <hr>
+            <h2>제휴 문의</h2>
+            <form action="https://formspree.io/f/mreavnlk" method="POST" class="contact-form">
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <input type="text" id="name" name="name" required placeholder="이름을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="_replyto" required placeholder="이메일을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="message">문의 내용</label>
+                    <textarea id="message" name="message" required placeholder="문의 내용을 입력하세요"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">보내기</button>
+            </form>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>
