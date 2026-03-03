@@ -1,27 +1,43 @@
-# Lotto Number Generator
+# Fashion Style Reference Website
 
 ## Overview
+This project is a minimalist, monotone fashion style reference website. It provides a curated collection of 20 distinct fashion styles, complete with descriptions, representative brands, and high-quality imagery inspired by lookbooks and Vogue runways.
 
-This project is a web-based lottery number generator that creates 5 combinations of 6 unique numbers. The application will be built using modern web standards, including HTML, CSS, and JavaScript, with a focus on a clean, responsive, and visually appealing user interface.
+## Design Philosophy
+*   **Minimalism:** A clean, distraction-free interface that focuses on the content and imagery.
+*   **Monotone Aesthetic:** A black and white color palette to emphasize form, silhouette, and texture.
+*   **Typography:** Bold, high-contrast headings combined with clean, readable body text.
+*   **Interactivity:** A smooth modal-based gallery system that showcases 50 curated images per style.
 
-## Design and Features
+## Key Features
+*   **20 Fashion Categories:** Ranging from Classic and Old Money to Techwear and Avant-garde.
+*   **Curated Content:** Each style includes a professional design description and a list of representative brands.
+*   **High-Quality Imagery:** 50 lookbook/runway style images per category to provide a comprehensive visual reference.
+*   **Responsive Design:** Fully optimized for all screen sizes, from mobile to ultra-wide desktops.
 
-### Visual Design
-*   **Aesthetics:** A modern and clean design with a visually balanced layout.
-*   **Color Palette:** A vibrant color palette will be used to create an energetic look and feel. A gradient background with a subtle noise texture will be applied for a premium feel.
-*   **Typography:** Expressive and readable fonts will be used to enhance the user experience.
-*   **Interactivity:** The "Generate" button will have a "glow" effect on interaction. The generated number cards will have a soft, deep shadow to look "lifted."
-*   **Responsiveness:** The layout will be fully responsive and work on both mobile and desktop devices.
+## Implementation Details
+1.  **`index.html`**: Structure for the style grid and the dynamic modal gallery.
+2.  **`style.css`**: Implementation of the monotone minimalist design, including custom grid layouts and modal animations.
+3.  **`main.js`**: Core logic for rendering style cards and dynamically generating image galleries using themed keywords.
 
-### Features
-*   **Number Generation:** Generates 5 combinations of 6 unique random numbers between 1 and 45.
-*   **User Interface:**
-    *   A prominent "Generate Numbers" button to trigger the generation.
-    *   A clear and well-organized display for the 5 generated combinations.
-    *   The generated numbers will be displayed in visually distinct cards.
-
-## Implementation Plan
-
-1.  **`index.html`**: Set up the basic structure of the web page, including a title, a container for the application, a button, and a results area.
-2.  **`style.css`**: Implement the visual design using modern CSS. This will include styles for the layout, colors, fonts, and interactive elements.
-3.  **`main.js`**: Write the JavaScript logic for generating the random lottery numbers and displaying them on the page.
+## Fashion Styles Included
+1. Classic
+2. Old Money
+3. Minimalist
+4. Ivy League
+5. Preppy
+6. City Boy
+7. Gorpcore
+8. Workwear
+9. Military
+10. Techwear
+11. Streetwear
+12. Skater
+13. Normcore
+14. Y2K
+15. French Chic
+16. Grunge
+17. Bohemian
+18. Avant-garde
+19. Maximalism
+20. Vintage / Retro
