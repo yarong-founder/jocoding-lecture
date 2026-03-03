@@ -3,121 +3,121 @@ const fashionStyles = [
         name: "Classic",
         description: "Refined silhouettes, timeless formality unaffected by trends.",
         brands: "Armani, Ralph Lauren Purple Label",
-        keyword: "classic-fashion-lookbook"
+        searchTags: "vogue-runway-classic-suit,high-fashion-classic-editorial"
     },
     {
         name: "Old Money",
         description: "Logo-less luxury, premium materials, and an elegant mood.",
         brands: "Loro Piana, Brunello Cucinelli, The Row",
-        keyword: "quiet-luxury-fashion"
+        searchTags: "quiet-luxury-fashion,old-money-aesthetic-lookbook"
     },
     {
         name: "Minimalist",
         description: "Extreme simplicity, clean fits, and primarily neutral colors.",
         brands: "Jil Sander, Lemaire, COS",
-        keyword: "minimal-fashion-editorial"
+        searchTags: "minimalist-fashion-runway,vogue-minimalist-editorial"
     },
     {
         name: "Ivy League",
         description: "Conservative and neat looks of 1950s-60s US East Coast college students.",
         brands: "Brooks Brothers, J.Press",
-        keyword: "ivy-league-style"
+        searchTags: "ivy-league-fashion-style,vintage-college-lookbook"
     },
     {
         name: "Preppy",
         description: "A style adding cheerful colors and sportiness to the Ivy look.",
         brands: "Polo Ralph Lauren, Tommy Hilfiger",
-        keyword: "preppy-fashion-lookbook"
+        searchTags: "preppy-style-vogue,ralph-lauren-lookbook"
     },
     {
         name: "City Boy",
         description: "Oversized layering and relaxed urban casual style.",
         brands: "Nanamica, Beams, Nautica (JP)",
-        keyword: "city-boy-style"
+        searchTags: "japanese-city-boy-style,oversized-fashion-editorial"
     },
     {
         name: "Gorpcore",
         description: "Functional looks matching outdoor wear sensually for daily life.",
         brands: "Arc'teryx, Salomon, And Wander",
-        keyword: "gorpcore-fashion"
+        searchTags: "gorpcore-fashion-runway,tech-outdoor-editorial"
     },
     {
         name: "Workwear",
         description: "Practical designs using tough, durable materials (denim, duck canvas).",
         brands: "Carhartt WIP, Dickies, Red Wing",
-        keyword: "workwear-fashion-style"
+        searchTags: "heritage-workwear-fashion,rugged-editorial-lookbook"
     },
     {
         name: "Military",
         description: "Reinterpreting military uniform details into modern fashion elements.",
         brands: "Engineered Garments, Alpha Industries",
-        keyword: "military-fashion-editorial"
+        searchTags: "military-fashion-runway,army-style-editorial"
     },
     {
         name: "Techwear",
         description: "Functional fabrics, multi-functional pockets, and futuristic cyberpunk mood.",
         brands: "Acronym, Stone Island Shadow Project",
-        keyword: "techwear-fashion-lookbook"
+        searchTags: "techwear-fashion-lookbook,cyberpunk-runway-style"
     },
     {
         name: "Streetwear",
         description: "Subculture-based culture centered on graphic t-shirts and sneakers.",
         brands: "Supreme, Stüssy, Off-White",
-        keyword: "streetwear-fashion-editorial"
+        searchTags: "high-end-streetwear-runway,vogue-street-style"
     },
     {
         name: "Skater",
         description: "Baggy pants and flat shoes considering the activity of boarders.",
         brands: "Vans, Palace, Dickies 874",
-        keyword: "skater-fashion-style"
+        searchTags: "skater-fashion-editorial,90s-skate-style-lookbook"
     },
     {
         name: "Normcore",
         description: "Comfortable, everyday looks that elevate 'ordinariness' into a style.",
         brands: "Uniqlo, Gap, New Balance",
-        keyword: "normcore-fashion"
+        searchTags: "normcore-fashion-vogue,essential-minimal-lookbook"
     },
     {
         name: "Y2K",
         description: "Colorful, experimental, and kitschy style of the early 2000s.",
         brands: "Diesel, Blumarine, Juicy Couture",
-        keyword: "y2k-fashion-editorial"
+        searchTags: "y2k-fashion-runway,2000s-vogue-editorial"
     },
     {
         name: "French Chic",
         description: "Unartificial sophistication and effortless elegance.",
         brands: "A.P.C., Celine, Rouje",
-        keyword: "french-chic-fashion"
+        searchTags: "parisian-chic-runway,french-vogue-editorial"
     },
     {
         name: "Grunge",
         description: "Rough, vintage layering based on 90s rock culture.",
         brands: "Rick Owens, Saint Laurent (Hedi Era)",
-        keyword: "grunge-fashion-editorial"
+        searchTags: "grunge-fashion-editorial,90s-rock-runway"
     },
     {
         name: "Bohemian",
         description: "Free patterns, ethnic details, and flowing silhouettes.",
         brands: "Isabel Marant, Chloé",
-        keyword: "bohemian-fashion-lookbook"
+        searchTags: "bohemian-luxury-runway,vogue-boho-editorial"
     },
     {
         name: "Avant-garde",
         description: "Experimental and satirical structures that break fashion stereotypes.",
         brands: "Comme des Garçons, Yohji Yamamoto",
-        keyword: "avant-garde-fashion-runway"
+        searchTags: "avant-garde-runway,conceptual-fashion-editorial"
     },
     {
         name: "Maximalism",
         description: "'More is More' – a harmony of bold colors and flashy patterns.",
         brands: "Gucci (Alessandro Michele Era), Kenzo",
-        keyword: "maximalism-fashion-editorial"
+        searchTags: "maximalist-fashion-runway,bold-vogue-editorial"
     },
     {
         name: "Vintage / Retro",
         description: "Nostalgic retro sensibility reminiscent of specific eras.",
         brands: "Levi's Vintage Clothing, Adidas Originals",
-        keyword: "vintage-fashion-lookbook"
+        searchTags: "vintage-fashion-lookbook,retro-runway-style"
     }
 ];
 
@@ -129,9 +129,8 @@ const modalBrands = document.getElementById('modal-brands');
 const modalGallery = document.getElementById('modal-gallery');
 const closeBtn = document.querySelector('.close-btn');
 
-// Initialize Grid
 function init() {
-    fashionStyles.forEach((style, index) => {
+    fashionStyles.forEach((style) => {
         const card = document.createElement('div');
         card.className = 'style-card';
         card.innerHTML = `
@@ -144,31 +143,29 @@ function init() {
     });
 }
 
-// Open Gallery Modal
 function openGallery(style) {
     modalTitle.textContent = style.name;
     modalDesc.textContent = style.description;
     modalBrands.textContent = `Representative Brands: ${style.brands}`;
-    
-    // Clear previous gallery
     modalGallery.innerHTML = '';
     
-    // Inject 50 images
     for (let i = 1; i <= 50; i++) {
         const img = document.createElement('img');
         img.className = 'gallery-item';
         const width = 600;
         const height = 900;
         
-        // Use LoremFlickr for stable keyword-based images
-        // Format: https://loremflickr.com/width/height/keywords/all?lock=seed
-        // We use 'fashion' and the style's keyword to ensure relevant, high-quality results
-        const keywords = `fashion,${style.keyword.replace(/-/g, ',')}`;
+        // Combining high-fashion keywords with the specific style tags
+        // This ensures the results are biased towards runway/editorial photos
+        const fashionBias = "vogue,runway,editorial";
+        const keywords = `${fashionBias},${style.searchTags}`;
+        
+        // Using a more reliable way to get high-quality unique images:
+        // LoremFlickr with fashion-specific combined tags
         img.src = `https://loremflickr.com/${width}/${height}/${keywords}/all?lock=${i + (fashionStyles.indexOf(style) * 50)}`;
         
-        // Error handling: if image fails, try a generic fashion image
         img.onerror = function() {
-            this.src = `https://loremflickr.com/${width}/${height}/fashion/all?lock=${i}`;
+            this.src = `https://loremflickr.com/${width}/${height}/high-fashion,runway/all?lock=${i}`;
         };
         
         modalGallery.appendChild(img);
@@ -177,10 +174,6 @@ function openGallery(style) {
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden'; 
 }
-
-// Helper to provide somewhat realistic diversity without an API key
-// In a real app, you'd fetch from Unsplash API.
-// Here we use the sig parameter which usually works well for variety.
 
 closeBtn.onclick = function() {
     modal.style.display = 'none';
@@ -192,12 +185,6 @@ window.onclick = function(event) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-}
-
-// Simple deterministic photo ID helper (placeholder logic)
-function getFixedPhotoId(keyword, index) {
-    // This is just a fallback, the source.unsplash.com URL below is better for demo.
-    return ""; 
 }
 
 init();
