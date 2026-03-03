@@ -223,31 +223,47 @@ async function renderImageCell(style, index, token) {
 }
 
 function buildImageSourceChain(style, index) {
-    const basePrompt = [
-        "fashion editorial",
-        "lookbook",
-        "brand campaign",
-        "pinterest moodboard",
-        style.aesthetic,
-        "high detail",
-        "full body",
-        "studio or street style"
-    ].join(", ");
-
     const hashSeed = hashCode(`${style.name}-${style.aesthetic}-${index}`);
     const seedA = Math.abs(hashSeed) % 1000000;
     const seedB = (seedA + 179) % 1000000;
+    const normalizedStyle = style.name.toLowerCase().replace(/\s*\/\s*/g, " ").replace(/\s+/g, " ");
+    const leadBrand = style.brands.split(",")[0].trim().toLowerCase();
 
-    const pollinationsA = `https://image.pollinations.ai/prompt/${encodeURIComponent(basePrompt)}?width=600&height=900&nologo=true&seed=${seedA}`;
-    const pollinationsB = `https://image.pollinations.ai/prompt/${encodeURIComponent(basePrompt)}?width=600&height=900&nologo=true&seed=${seedB}`;
+    const editorialQuery = encodeURIComponent([
+        "fashion",
+        normalizedStyle,
+        "editorial",
+        "runway",
+        "brand campaign",
+        "lookbook",
+        "model outfit"
+    ].join(","));
 
-    const unsplashQuery = encodeURIComponent(`fashion,${style.name},${style.aesthetic},editorial,lookbook`);
-    const unsplash = `https://source.unsplash.com/600x900/?${unsplashQuery}&sig=${seedB}`;
+    const brandQuery = encodeURIComponent([
+        "fashion",
+        leadBrand,
+        "editorial",
+        "runway",
+        normalizedStyle,
+        "lookbook"
+    ].join(","));
 
-    const picsumSeed = encodeURIComponent(`${style.name.toLowerCase().replace(/\s+/g, "-")}-${index + 1}`);
-    const picsum = `https://picsum.photos/seed/${picsumSeed}/600/900`;
+    const moodQuery = encodeURIComponent([
+        "fashion mood",
+        normalizedStyle,
+        "street style",
+        "designer",
+        "outfit reference"
+    ].join(","));
 
-    return [pollinationsA, pollinationsB, unsplash, picsum];
+    const unsplashEditorial = `https://source.unsplash.com/600x900/?${editorialQuery}&sig=${seedA}`;
+    const unsplashBrand = `https://source.unsplash.com/600x900/?${brandQuery}&sig=${seedB}`;
+    const unsplashMood = `https://source.unsplash.com/600x900/?${moodQuery}&sig=${seedA + seedB}`;
+
+    const flickrFashion = `https://loremflickr.com/600/900/fashion,editorial,runway,lookbook?lock=${seedA}`;
+    const flickrStyle = `https://loremflickr.com/600/900/fashion,style,outfit,model?lock=${seedB}`;
+
+    return [unsplashEditorial, unsplashBrand, unsplashMood, flickrFashion, flickrStyle];
 }
 
 function loadImage(src, timeoutMs) {
