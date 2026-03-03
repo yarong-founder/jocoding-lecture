@@ -4,32 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fashion Style Reference</title>
-    <link rel="stylesheet" href="style.css?v=1.6">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
+    <div class="grain" aria-hidden="true"></div>
     <header class="header">
+        <p class="eyebrow">Fashion Archive / 20 Styles</p>
         <h1 class="logo">trans_ the border</h1>
-        <p class="subtitle">A curated collection of 20 fashion styles.</p>
+        <p class="subtitle">카테고리를 선택하면 브랜드 에디토리얼, 룩북, 핀터레스트 무드 기반의 레퍼런스 50장을 확인할 수 있습니다.</p>
     </header>
 
     <main class="container">
-        <div id="style-grid" class="style-grid">
-            <!-- Styles will be injected here by main.js -->
-        </div>
+        <section>
+            <div class="section-head">
+                <h2>Style Categories</h2>
+                <p id="selection-hint">카드를 클릭해 갤러리를 열어보세요.</p>
+            </div>
+            <div id="style-grid" class="style-grid" role="list"></div>
+        </section>
     </main>
 
-    <!-- Modal for Gallery -->
-    <div id="gallery-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
+    <div id="gallery-modal" class="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button class="close-btn" type="button" aria-label="갤러리 닫기">Close</button>
             <div id="modal-header">
                 <h2 id="modal-title"></h2>
                 <p id="modal-description"></p>
                 <p id="modal-brands"></p>
+                <p id="modal-count">50 curated references</p>
             </div>
-            <div id="modal-gallery" class="gallery-grid">
-                <!-- 50 images will be injected here -->
-            </div>
+            <div id="modal-gallery" class="gallery-grid"></div>
         </div>
     </div>
 
@@ -37,6 +44,6 @@
         <p>&copy; 2026 trans_ the border. Monotone Minimalist Archive.</p>
     </footer>
 
-    <script src="main.js?v=1.8"></script>
+    <script src="main.js?v=2.0"></script>
 </body>
 </html>
