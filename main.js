@@ -132,7 +132,7 @@ const modalCount = document.getElementById("modal-count");
 const modalGallery = document.getElementById("modal-gallery");
 const closeBtn = document.querySelector(".close-btn");
 
-const CURATED_REFERENCE_CSV_URL = "./brand-editorials.csv?v=1";
+const CURATED_REFERENCE_CSV_URL = "./approved-sources.csv?v=1";
 let activeGalleryToken = 0;
 let curatedRowsPromise = null;
 
@@ -180,7 +180,7 @@ async function openGallery(style) {
     modalTitle.textContent = style.name;
     modalDesc.textContent = style.description;
     modalBrands.textContent = `Representative Brands: ${style.brands}`;
-    modalCount.textContent = "Loading brand editorials and lookbooks...";
+    modalCount.textContent = "Loading approved official references...";
     modalGallery.innerHTML = "";
 
     openModal();
@@ -190,10 +190,10 @@ async function openGallery(style) {
         return;
     }
 
-    modalCount.textContent = `${references.length} curated references with source credit`;
+    modalCount.textContent = `${references.length} approved references with source credit`;
 
     if (references.length === 0) {
-        modalGallery.innerHTML = "<p class=\"empty-state\">이 카테고리에 등록된 브랜드 에디토리얼/룩북 이미지가 없습니다.</p>";
+        modalGallery.innerHTML = "<p class=\"empty-state\">이 카테고리에 승인된 공식 이미지가 아직 없습니다.</p>";
         return;
     }
 
@@ -259,17 +259,23 @@ function mapCsvRow(row, columnMap) {
 
     return {
         category: read("category"),
+        brand: read("brand"),
         imageUrl: read("image_url"),
         sourceUrl: read("source_url"),
         sourceName: read("source_name") || "Source",
         title: read("title") || "Editorial / Lookbook",
         creator: read("creator") || "Unknown creator",
-        license: read("license") || "Usage per original source"
+        license: read("license") || "Usage per original source",
+        usageNote: read("usage_note"),
+        approved: read("approved").toLowerCase() === "yes"
     };
 }
 
 function isValidCuratedRow(row) {
-    if (!row.category || !row.imageUrl || !row.sourceUrl) {
+    if (!row.approved) {
+        return false;
+    }
+    if (!row.category || !row.brand || !row.imageUrl || !row.sourceUrl || !row.sourceName || !row.usageNote) {
         return false;
     }
     try {
@@ -365,7 +371,7 @@ async function renderReferenceCell(style, reference, index, token) {
     link.rel = "noopener noreferrer";
     link.textContent = reference.title;
     const meta = document.createElement("span");
-    meta.textContent = `${reference.creator} · ${reference.sourceName} · ${reference.license}`;
+    meta.textContent = `${reference.brand} · ${reference.creator} · ${reference.sourceName} · ${reference.license}`;
     credit.appendChild(link);
     credit.appendChild(meta);
     container.appendChild(credit);

@@ -1,0 +1,26 @@
+# source_url/image_url must match one of these domains (or subdomains)
+# Add only official brand sites, official press sites, or licensed media hosts.
+prada.com
+gucci.com
+chanel.com
+dior.com
+louisvuitton.com
+celine.com
+loewe.com
+ysl.com
+balenciaga.com
+isabelmarant.com
+off---white.com
+supremenewyork.com
+stussy.com
+arcteryx.com
+engineeredgarments.com
+carhartt-wip.com
+nanamica.com
+beams.co.jp
+brooksbrothers.com
+ralphlauren.com
+vogue.com
+wwd.com
+anothermag.com
+i-d.co
