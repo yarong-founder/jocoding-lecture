@@ -152,13 +152,12 @@ async function openGallery(style) {
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
-    // Load 40 images (sufficient for a rich gallery)
-    // We don't await the batch anymore to prevent stalling if one image hangs
-    for (let i = 0; i < 40; i++) {
+    // Load 30 high-quality images
+    for (let i = 0; i < 30; i++) {
         loadImage(style, i);
-        // Small stagger to not overwhelm the browser's request queue
-        if (i % 4 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
+        // Stagger loading to prevent API flooding
+        if ((i + 1) % 5 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
     }
 }
@@ -169,43 +168,42 @@ function loadImage(style, index) {
     imgContainer.innerHTML = '<div class="loader"></div>';
     modalGallery.appendChild(imgContainer);
 
-    const img = document.createElement('img');
-    img.className = 'gallery-item';
-    img.loading = 'lazy'; // Native lazy loading
+    const img = new Image();
     
-    // High-end prompt for consistent Vogue/Lookbook quality
-    const prompt = `High-end fashion editorial, ${style.aesthetic}, vogue runway lookbook, professional lighting, 8k, extremely detailed, fashion photography`;
-    const encodedPrompt = encodeURIComponent(prompt);
-    const seed = (style.name.length * 100) + index + 42; 
-    
-    const baseUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=600&height=900&nologo=true&seed=${seed}`;
-    const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=600&height=900&seed=${seed + 1000}`;
-    
-    img.src = baseUrl;
-    
-    const handleLoad = () => {
+    // Safety Timeout (30 seconds for AI generation)
+    const timeout = setTimeout(() => {
+        if (imgContainer.querySelector('.loader')) {
+            img.src = ''; // Stop loading
+            imgContainer.innerHTML = '<div style="font-size: 11px; color: #999; text-align: center; padding: 20px;">Load Timeout</div>';
+        }
+    }, 30000);
+
+    img.onload = () => {
+        clearTimeout(timeout);
+        img.className = 'gallery-item';
         imgContainer.innerHTML = '';
         imgContainer.appendChild(img);
     };
 
-    const handleError = () => {
-        if (img.src !== fallbackUrl) {
-            img.src = fallbackUrl;
+    img.onerror = () => {
+        clearTimeout(timeout);
+        // Attempt one fallback with a different seed if it fails
+        if (!img.dataset.isFallback) {
+            img.dataset.isFallback = 'true';
+            const newSeed = Math.floor(Math.random() * 10000);
+            img.src = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=600&height=900&seed=${newSeed}`;
         } else {
-            // If even fallback fails, show a placeholder or just remove loader
-            imgContainer.innerHTML = '<div style="font-size: 10px; color: #ccc;">Image unavailable</div>';
+            imgContainer.innerHTML = '<div style="font-size: 11px; color: #999; text-align: center; padding: 20px;">Image Unavailable</div>';
         }
     };
 
-    img.onload = handleLoad;
-    img.onerror = handleError;
-
-    // Safety timeout: if image hasn't loaded in 15 seconds, clear the loader
-    setTimeout(() => {
-        if (imgContainer.querySelector('.loader')) {
-            handleError();
-        }
-    }, 15000);
+    // Construct high-end prompt
+    const cleanAesthetic = style.aesthetic.replace(/-/g, ' ');
+    const promptText = `High-end fashion editorial, ${cleanAesthetic}, vogue magazine style, runway photography, professional studio lighting, 8k ultra-detailed, fashion lookbook`;
+    const seed = (style.name.length * 77) + index + 123;
+    
+    // Use the primary stable endpoint
+    img.src = `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=600&height=900&seed=${seed}&nologo=true`;
 }
 
 closeBtn.onclick = function() {
