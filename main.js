@@ -160,18 +160,16 @@ function openGallery(style) {
         const width = 600;
         const height = 900;
         
-        // Using a reliable source for keyword-based random images (Unsplash)
-        // Adding the keyword and unique signature for variety
-        img.src = `https://images.unsplash.com/featured/${width}x${height}/?${style.keyword}&sig=${i}`;
+        // Use LoremFlickr for stable keyword-based images
+        // Format: https://loremflickr.com/width/height/keywords/all?lock=seed
+        // We use 'fashion' and the style's keyword to ensure relevant, high-quality results
+        const keywords = `fashion,${style.keyword.replace(/-/g, ',')}`;
+        img.src = `https://loremflickr.com/${width}/${height}/${keywords}/all?lock=${i + (fashionStyles.indexOf(style) * 50)}`;
         
-        // Fallback or secondary strategy to ensure high quality fashion images
-        // We use keywords like 'runway', 'vogue', 'editorial' mixed with the specific style
-        const refinedKeyword = `${style.keyword},fashion,lookbook`;
-        img.src = `https://source.unsplash.com/featured/${width}x${height}/?${refinedKeyword}&sig=${i}-${style.name.replace(/\s+/g, '')}`;
-        
-        // Since source.unsplash.com is being phased out, let's use the most stable images.unsplash.com query
-        // that allows keyword search through the URL path if possible, or using multiple base IDs for variety.
-        // For a prototype, the signature-based featured URL is the best way to get distinct images by keyword.
+        // Error handling: if image fails, try a generic fashion image
+        img.onerror = function() {
+            this.src = `https://loremflickr.com/${width}/${height}/fashion/all?lock=${i}`;
+        };
         
         modalGallery.appendChild(img);
     }
