@@ -172,6 +172,7 @@ function loadImage(style, index) {
     const promptText = `High-end fashion editorial, ${cleanAesthetic}, vogue runway, aesthetic professional lighting, detailed texture, 8k, lookbook style`;
     const seed = Math.floor(Math.random() * 1000000) + (style.name.length * index);
     const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=600&height=900&nologo=true&seed=${seed}`;
+    const fallbackUrl = `https://picsum.photos/seed/${encodeURIComponent(`${style.name}-${index}`)}/600/900`;
 
     // 2. Create Image Object
     const img = new Image();
@@ -181,8 +182,9 @@ function loadImage(style, index) {
         img.onload = null;
         img.onerror = null;
         if (imgContainer.querySelector('.loader')) {
-            imgContainer.innerHTML = '<div style="font-size: 10px; color: #aaa; text-align: center; padding: 20px;">Slow connection...</div>';
+            imgContainer.innerHTML = '<div style="font-size: 10px; color: #aaa; text-align: center; padding: 20px;">Primary source unavailable. Loading fallback...</div>';
         }
+        loadFallbackImage(imgContainer, fallbackUrl);
     }, 45000);
 
     // 4. Set up Handlers
@@ -204,12 +206,29 @@ function loadImage(style, index) {
                 imgContainer.innerHTML = '';
                 imgContainer.appendChild(retryImg);
             };
+            retryImg.onerror = () => {
+                imgContainer.innerHTML = '<div style="font-size: 10px; color: #aaa; text-align: center; padding: 20px;">Primary source failed. Using fallback...</div>';
+                loadFallbackImage(imgContainer, fallbackUrl);
+            };
             retryImg.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=600&height=900&nologo=true&seed=${seed + 999}`;
         }, 1000);
     };
 
     // 5. Start Loading
     img.src = imageUrl;
+}
+
+function loadFallbackImage(container, fallbackUrl) {
+    const fallbackImg = new Image();
+    fallbackImg.onload = () => {
+        fallbackImg.className = 'gallery-item';
+        container.innerHTML = '';
+        container.appendChild(fallbackImg);
+    };
+    fallbackImg.onerror = () => {
+        container.innerHTML = '<div style="font-size: 10px; color: #aaa; text-align: center; padding: 20px;">Image unavailable.</div>';
+    };
+    fallbackImg.src = fallbackUrl;
 }
 
 closeBtn.onclick = function() {
