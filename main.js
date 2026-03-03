@@ -154,27 +154,34 @@ function openGallery(style) {
     modalGallery.innerHTML = '';
     
     // Inject 50 images
-    // Using unsplash with different seeds to get 50 images
     for (let i = 1; i <= 50; i++) {
         const img = document.createElement('img');
         img.className = 'gallery-item';
-        // Use a high-quality fashion source keyword + index for variety
         const width = 600;
         const height = 900;
-        // Unsplash source search with sig for unique images
-        img.src = `https://images.unsplash.com/photo-${getFixedPhotoId(style.keyword, i)}?auto=format&fit=crop&q=60&w=${width}&h=${height}`;
-        // Fallback to random search if ID generation is complex, but let's use a more reliable pattern:
-        img.src = `https://source.unsplash.com/featured/${width}x${height}/?${style.keyword}&sig=${i}`;
+        // Use Unsplash random source with keywords and unique seed (sig)
+        img.src = `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=60&w=${width}&h=${height}&sig=${style.keyword}-${i}`;
+        // Improved placeholder logic: Use the keyword search via unsplash source if available, 
+        // otherwise a more stable random fashion image source.
+        img.src = `https://source.unsplash.com/featured/${width}x${height}/?${style.keyword}&${i}`;
+        // Since source.unsplash.com is unstable, let's use the standard images.unsplash.com with a search query fallback
+        img.src = `https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=${width}&h=${height}&sig=${style.keyword}-${i}`;
         
-        // Note: Unsplash Source is deprecated but still works for many. 
-        // For a more robust version, we'd use the actual API, 
-        // but for a prototype, this sig-based approach is best for "selecting" 50.
+        // Final refined approach for high-quality fashion images without API
+        const fashionSeeds = [
+            "1490481658042-58bb8fab4128", "1483985988355-763728e1935b", "1496747611176-843222e1e57c",
+            "1539109136881-3be0616acf4b", "1445205170230-053b83016050", "1509631179647-0177331693ae",
+            "1558769132-cb1aea458c5e", "1470309633518-2819aa99c536", "1485968579580-b6d095142e6e",
+            "1529133565077-6737275a893e", "1492707844780-b1d82043992e", "1581044777550-4cfa60707c03"
+        ];
+        const seed = fashionSeeds[i % fashionSeeds.length];
+        img.src = `https://images.unsplash.com/photo-${seed}?auto=format&fit=crop&q=80&w=${width}&h=${height}&crop=entropy&sig=${i}`;
         
         modalGallery.appendChild(img);
     }
     
     modal.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevent scroll
+    document.body.style.overflow = 'hidden'; 
 }
 
 // Helper to provide somewhat realistic diversity without an API key
