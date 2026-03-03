@@ -132,7 +132,9 @@ const modalCount = document.getElementById("modal-count");
 const modalGallery = document.getElementById("modal-gallery");
 const closeBtn = document.querySelector(".close-btn");
 
+const CURATED_REFERENCE_CSV_URL = "./brand-editorials.csv?v=1";
 let activeGalleryToken = 0;
+let curatedRowsPromise = null;
 
 function init() {
     fashionStyles.forEach((style) => {
@@ -178,12 +180,12 @@ async function openGallery(style) {
     modalTitle.textContent = style.name;
     modalDesc.textContent = style.description;
     modalBrands.textContent = `Representative Brands: ${style.brands}`;
-    modalCount.textContent = "Loading curated fashion references...";
+    modalCount.textContent = "Loading brand editorials and lookbooks...";
     modalGallery.innerHTML = "";
 
     openModal();
 
-    const references = await fetchFashionReferences(style, token);
+    const references = await fetchCuratedReferences(style, token);
     if (token !== activeGalleryToken) {
         return;
     }
@@ -191,7 +193,7 @@ async function openGallery(style) {
     modalCount.textContent = `${references.length} curated references with source credit`;
 
     if (references.length === 0) {
-        modalGallery.innerHTML = '<p class="empty-state">패션 이미지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+        modalGallery.innerHTML = "<p class=\"empty-state\">이 카테고리에 등록된 브랜드 에디토리얼/룩북 이미지가 없습니다.</p>";
         return;
     }
 
@@ -200,62 +202,132 @@ async function openGallery(style) {
     });
 }
 
-async function fetchFashionReferences(style, token) {
-    const queries = buildOpenverseQueries(style);
-    const seen = new Set();
-    const results = [];
+async function fetchCuratedReferences(style, token) {
+    const rows = await loadCuratedRows();
+    if (token !== activeGalleryToken) {
+        return [];
+    }
 
-    for (const query of queries) {
-        for (let page = 1; page <= 8; page += 1) {
-            if (token !== activeGalleryToken || results.length >= IMAGES_PER_STYLE) {
-                return results;
+    const styleKey = normalizeCategory(style.name);
+    return rows
+        .filter((row) => normalizeCategory(row.category) === styleKey)
+        .slice(0, IMAGES_PER_STYLE);
+}
+
+async function loadCuratedRows() {
+    if (!curatedRowsPromise) {
+        curatedRowsPromise = fetchCuratedRowsFromCsv();
+    }
+    return curatedRowsPromise;
+}
+
+async function fetchCuratedRowsFromCsv() {
+    try {
+        const response = await fetch(CURATED_REFERENCE_CSV_URL, { cache: "no-store" });
+        if (!response.ok) {
+            return [];
+        }
+
+        const csvText = await response.text();
+        const parsed = parseCsv(csvText);
+        if (parsed.length < 2) {
+            return [];
+        }
+
+        const [header, ...body] = parsed;
+        const columnMap = {};
+        header.forEach((name, index) => {
+            columnMap[String(name || "").trim().toLowerCase()] = index;
+        });
+
+        return body
+            .map((row) => mapCsvRow(row, columnMap))
+            .filter((row) => isValidCuratedRow(row));
+    } catch (error) {
+        return [];
+    }
+}
+
+function mapCsvRow(row, columnMap) {
+    const read = (name) => {
+        const index = columnMap[name];
+        if (index === undefined) {
+            return "";
+        }
+        return String(row[index] || "").trim();
+    };
+
+    return {
+        category: read("category"),
+        imageUrl: read("image_url"),
+        sourceUrl: read("source_url"),
+        sourceName: read("source_name") || "Source",
+        title: read("title") || "Editorial / Lookbook",
+        creator: read("creator") || "Unknown creator",
+        license: read("license") || "Usage per original source"
+    };
+}
+
+function isValidCuratedRow(row) {
+    if (!row.category || !row.imageUrl || !row.sourceUrl) {
+        return false;
+    }
+    try {
+        new URL(row.imageUrl);
+        new URL(row.sourceUrl);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function normalizeCategory(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/\s*\/\s*/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === "\"") {
+            if (inQuotes && next === "\"") {
+                field += "\"";
+                i += 1;
+            } else {
+                inQuotes = !inQuotes;
             }
-
-            const endpoint = `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page=${page}&page_size=20&license=by,by-sa,cc0,pdm,by-nc,by-nc-sa&mature=false`;
-            const payload = await fetchJson(endpoint);
-            if (!payload || !Array.isArray(payload.results) || payload.results.length === 0) {
-                break;
+        } else if (char === "," && !inQuotes) {
+            row.push(field);
+            field = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && next === "\n") {
+                i += 1;
             }
-
-            for (const item of payload.results) {
-                if (token !== activeGalleryToken || results.length >= IMAGES_PER_STYLE) {
-                    return results;
-                }
-
-                if (!isFashionRelevant(item)) {
-                    continue;
-                }
-
-                const key = item.id || item.url;
-                if (!key || seen.has(key)) {
-                    continue;
-                }
-
-                seen.add(key);
-                results.push({
-                    title: item.title || `${style.name} reference`,
-                    creator: item.creator || "Unknown creator",
-                    provider: item.provider || item.source || "Openverse",
-                    license: formatLicense(item.license, item.license_version),
-                    sourceUrl: item.foreign_landing_url || item.url,
-                    imageUrl: item.url,
-                    fallbackUrl: item.thumbnail || null
-                });
-            }
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = "";
+        } else {
+            field += char;
         }
     }
 
-    return results;
-}
+    if (field.length > 0 || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+    }
 
-function buildOpenverseQueries(style) {
-    const normalizedStyle = style.name.toLowerCase().replace(/\s*\/\s*/g, " ").replace(/\s+/g, " ").trim();
-    const leadBrand = style.brands.split(",")[0].trim().toLowerCase();
-    return [
-        `fashion ${normalizedStyle} runway editorial lookbook street style`,
-        `fashion ${leadBrand} runway editorial campaign model`,
-        `fashion ${normalizedStyle} outfit designer collection`
-    ];
+    return rows;
 }
 
 async function renderReferenceCell(style, reference, index, token) {
@@ -274,7 +346,7 @@ async function renderReferenceCell(style, reference, index, token) {
     modalGallery.appendChild(container);
 
     const media = container.querySelector(".gallery-media");
-    const loaded = await loadImage(reference.imageUrl, 12000) || await loadImage(reference.fallbackUrl, 12000);
+    const loaded = await loadImage(reference.imageUrl, 12000);
     if (!loaded || token !== activeGalleryToken) {
         container.innerHTML = '<p class="empty-credit">Image unavailable</p>';
         return;
@@ -293,7 +365,7 @@ async function renderReferenceCell(style, reference, index, token) {
     link.rel = "noopener noreferrer";
     link.textContent = reference.title;
     const meta = document.createElement("span");
-    meta.textContent = `${reference.creator} · ${reference.provider} · ${reference.license}`;
+    meta.textContent = `${reference.creator} · ${reference.sourceName} · ${reference.license}`;
     credit.appendChild(link);
     credit.appendChild(meta);
     container.appendChild(credit);
@@ -326,48 +398,6 @@ function loadImage(src, timeoutMs) {
 
         image.src = src;
     });
-}
-
-async function fetchJson(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            return null;
-        }
-        return await response.json();
-    } catch (error) {
-        return null;
-    }
-}
-
-function isFashionRelevant(item) {
-    const text = [
-        item.title || "",
-        ...(item.tags || []).map((tag) => tag.name || "")
-    ].join(" ").toLowerCase();
-
-    const mustInclude = [
-        "fashion", "runway", "editorial", "lookbook", "style", "outfit", "garment", "couture", "model", "streetwear", "designer"
-    ];
-    const blockList = [
-        "cat", "kitten", "dog", "puppy", "bird", "flower", "landscape", "food", "vehicle", "motorcycle"
-    ];
-
-    if (!mustInclude.some((token) => text.includes(token))) {
-        return false;
-    }
-    if (blockList.some((token) => text.includes(token))) {
-        return false;
-    }
-
-    const width = Number(item.width || 0);
-    const height = Number(item.height || 0);
-    return width >= 300 && height >= 450;
-}
-
-function formatLicense(license, version) {
-    const upper = (license || "unknown").toUpperCase();
-    return version ? `${upper} ${version}` : upper;
 }
 
 closeBtn.addEventListener("click", closeModal);
