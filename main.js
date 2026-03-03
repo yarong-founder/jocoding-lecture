@@ -3,121 +3,121 @@ const IMAGES_PER_STYLE = 50;
 const fashionStyles = [
     {
         name: "Classic",
-        description: "Refined silhouettes, timeless formality unaffected by trends.",
+        description: "정제된 실루엣, 유행에 흔들리지 않는 포멀함.",
         brands: "Armani, Ralph Lauren Purple Label",
         aesthetic: "timeless tailoring monochrome editorial luxury lookbook"
     },
     {
         name: "Old Money",
-        description: "Logo-less luxury, premium materials, and an elegant mood.",
+        description: "로고 없는 럭셔리, 최고급 소재와 우아한 무드.",
         brands: "Loro Piana, Brunello Cucinelli, The Row",
         aesthetic: "quiet luxury heritage mansion neutrals editorial campaign"
     },
     {
         name: "Minimalist",
-        description: "Extreme simplicity, clean fits, and primarily neutral colors.",
+        description: "극도의 단순함, 정갈한 핏과 무채색 위주의 구성.",
         brands: "Jil Sander, Lemaire, COS",
         aesthetic: "minimal fashion silhouette clean line studio lookbook"
     },
     {
         name: "Ivy League",
-        description: "Conservative and neat looks of 1950s-60s US East Coast college students.",
+        description: "50-60년대 미 동부 대학생들의 보수적이고 단정한 룩.",
         brands: "Brooks Brothers, J.Press",
         aesthetic: "ivy campus prep tailoring heritage collegiate editorial"
     },
     {
         name: "Preppy",
-        description: "A style adding cheerful colors and sportiness to the Ivy look.",
+        description: "아이비 룩에 경쾌한 색감과 스포티함을 더한 스타일.",
         brands: "Polo Ralph Lauren, Tommy Hilfiger",
         aesthetic: "preppy sport casual luxury campus lookbook"
     },
     {
         name: "City Boy",
-        description: "Oversized layering and relaxed urban casual style.",
+        description: "오버사이즈와 레이어드, 여유로운 도시적 캐주얼.",
         brands: "Nanamica, Beams, Nautica (JP)",
         aesthetic: "tokyo street layering oversized city mood editorial"
     },
     {
         name: "Gorpcore",
-        description: "Functional looks matching outdoor wear sensually for daily life.",
+        description: "아웃도어 의류를 일상에서 감각적으로 매치한 기능적 룩.",
         brands: "Arc'teryx, Salomon, And Wander",
         aesthetic: "outdoor utility shell technical mountain city style"
     },
     {
         name: "Workwear",
-        description: "Practical designs using tough, durable materials (denim, duck canvas).",
+        description: "거칠고 튼튼한 소재(데님, 덕 캔버스)의 실용적 디자인.",
         brands: "Carhartt WIP, Dickies, Red Wing",
         aesthetic: "heritage denim rugged worker garment detail"
     },
     {
         name: "Military",
-        description: "Reinterpreting military uniform details into modern fashion elements.",
+        description: "군복의 디테일을 현대적인 패션 요소로 재해석.",
         brands: "Engineered Garments, Alpha Industries",
         aesthetic: "military utility jacket cargo contemporary runway"
     },
     {
         name: "Techwear",
-        description: "Functional fabrics, multi-functional pockets, and futuristic cyberpunk mood.",
+        description: "기능성 원단, 다기능 포켓, 미래지향적 사이버펑크 무드.",
         brands: "Acronym, Stone Island Shadow Project",
         aesthetic: "techwear futuristic utility black tactical city"
     },
     {
         name: "Streetwear",
-        description: "Subculture-based culture centered on graphic t-shirts and sneakers.",
-        brands: "Supreme, Stussy, Off-White",
+        description: "서브컬처 기반, 그래픽 티셔츠와 스니커즈 중심의 문화.",
+        brands: "Supreme, Stüssy, Off-White",
         aesthetic: "street culture sneaker hype editorial urban"
     },
     {
         name: "Skater",
-        description: "Baggy pants and flat shoes considering the activity of boarders.",
+        description: "보더들의 활동성을 고려한 헐렁한 바지와 플랫 슈즈.",
         brands: "Vans, Palace, Dickies 874",
         aesthetic: "skate park youth loose fit candid street"
     },
     {
         name: "Normcore",
-        description: "Comfortable, everyday looks that elevate 'ordinariness' into a style.",
+        description: "평범함을 스타일로 승화시킨 편안하고 일상적인 룩.",
         brands: "Uniqlo, Gap, New Balance",
         aesthetic: "everyday basics ordinary cool neutral wardrobe"
     },
     {
         name: "Y2K",
-        description: "Colorful, experimental, and kitschy style of the early 2000s.",
+        description: "2000년대 초반의 화려하고 실험적인 키치함.",
         brands: "Diesel, Blumarine, Juicy Couture",
         aesthetic: "y2k retro futuristic glossy pop lookbook"
     },
     {
         name: "French Chic",
-        description: "Unartificial sophistication and effortless elegance.",
+        description: "인위적이지 않은 세련미, 무심하게 입은 듯한 우아함.",
         brands: "A.P.C., Celine, Rouje",
         aesthetic: "paris effortless chic understated street editorial"
     },
     {
         name: "Grunge",
-        description: "Rough, vintage layering based on 90s rock culture.",
+        description: "90년대 록 문화 기반의 거칠고 빈티지한 레이어드.",
         brands: "Rick Owens, Saint Laurent (Hedi Era)",
         aesthetic: "grunge distressed layering rock nineties mood"
     },
     {
         name: "Bohemian",
-        description: "Free patterns, ethnic details, and flowing silhouettes.",
-        brands: "Isabel Marant, Chloe",
+        description: "자유로운 패턴, 에스닉한 디테일, 흐르는 듯한 실루엣.",
+        brands: "Isabel Marant, Chloé",
         aesthetic: "bohemian flowing fabric handcrafted detail romantic"
     },
     {
         name: "Avant-garde",
-        description: "Experimental and satirical structures that break fashion stereotypes.",
-        brands: "Comme des Garcons, Yohji Yamamoto",
+        description: "패션의 고정관념을 깨는 실험적이고 해학적인 구조.",
+        brands: "Comme des Garçons, Yohji Yamamoto",
         aesthetic: "avant garde conceptual dramatic silhouette runway"
     },
     {
         name: "Maximalism",
-        description: "'More is More' - a harmony of bold colors and flashy patterns.",
+        description: "\"More is More\", 과감한 색채와 화려한 패턴의 조화.",
         brands: "Gucci (Alessandro Michele Era), Kenzo",
         aesthetic: "maximal pattern layered ornament bold fashion"
     },
     {
         name: "Vintage / Retro",
-        description: "Nostalgic retro sensibility reminiscent of specific eras.",
+        description: "특정 시대를 연상시키는 향수 어린 복고적 감성.",
         brands: "Levi's Vintage Clothing, Adidas Originals",
         aesthetic: "vintage archival retro era inspired lookbook"
     }
