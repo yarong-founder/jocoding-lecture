@@ -152,54 +152,60 @@ async function openGallery(style) {
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
-    // Load 50 images in small batches to avoid 1033 errors and server overloading
-    const batchSize = 5;
-    for (let i = 0; i < 50; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize; j++) {
-            const index = i + j;
-            if (index >= 50) break;
-            batch.push(loadImage(style, index));
+    // Load 40 images (sufficient for a rich gallery)
+    // We don't await the batch anymore to prevent stalling if one image hangs
+    for (let i = 0; i < 40; i++) {
+        loadImage(style, i);
+        // Small stagger to not overwhelm the browser's request queue
+        if (i % 4 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
-        await Promise.all(batch);
-        // Small delay between batches to be safe
-        await new Promise(resolve => setTimeout(resolve, 300));
     }
 }
 
 function loadImage(style, index) {
-    return new Promise((resolve) => {
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'gallery-item-container';
-        imgContainer.innerHTML = '<div class="loader"></div>';
-        modalGallery.appendChild(imgContainer);
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'gallery-item-container';
+    imgContainer.innerHTML = '<div class="loader"></div>';
+    modalGallery.appendChild(imgContainer);
 
-        const img = document.createElement('img');
-        img.className = 'gallery-item';
-        
-        // High-end prompt for consistent Vogue/Lookbook quality
-        const prompt = `High-end fashion editorial, ${style.aesthetic}, vogue runway lookbook, professional lighting, 8k, extremely detailed, fashion photography`;
-        const encodedPrompt = encodeURIComponent(prompt);
-        const seed = (style.name.length * 100) + index + 42; 
-        
-        img.src = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=600&height=900&nologo=true&seed=${seed}`;
-        
-        img.onload = () => {
-            imgContainer.innerHTML = '';
-            imgContainer.appendChild(img);
-            resolve();
-        };
+    const img = document.createElement('img');
+    img.className = 'gallery-item';
+    img.loading = 'lazy'; // Native lazy loading
+    
+    // High-end prompt for consistent Vogue/Lookbook quality
+    const prompt = `High-end fashion editorial, ${style.aesthetic}, vogue runway lookbook, professional lighting, 8k, extremely detailed, fashion photography`;
+    const encodedPrompt = encodeURIComponent(prompt);
+    const seed = (style.name.length * 100) + index + 42; 
+    
+    const baseUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=600&height=900&nologo=true&seed=${seed}`;
+    const fallbackUrl = `https://pollinations.ai/p/${encodedPrompt}?width=600&height=900&seed=${seed + 1000}`;
+    
+    img.src = baseUrl;
+    
+    const handleLoad = () => {
+        imgContainer.innerHTML = '';
+        imgContainer.appendChild(img);
+    };
 
-        img.onerror = () => {
-            // Fallback to a different domain if pollinations fails
-            img.src = `https://pollinations.ai/p/${encodedPrompt}?width=600&height=900&seed=${seed + 1000}`;
-            img.onload = () => {
-                imgContainer.innerHTML = '';
-                imgContainer.appendChild(img);
-                resolve();
-            };
-        };
-    });
+    const handleError = () => {
+        if (img.src !== fallbackUrl) {
+            img.src = fallbackUrl;
+        } else {
+            // If even fallback fails, show a placeholder or just remove loader
+            imgContainer.innerHTML = '<div style="font-size: 10px; color: #ccc;">Image unavailable</div>';
+        }
+    };
+
+    img.onload = handleLoad;
+    img.onerror = handleError;
+
+    // Safety timeout: if image hasn't loaded in 15 seconds, clear the loader
+    setTimeout(() => {
+        if (imgContainer.querySelector('.loader')) {
+            handleError();
+        }
+    }, 15000);
 }
 
 closeBtn.onclick = function() {
