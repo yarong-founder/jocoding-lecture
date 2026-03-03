@@ -128,6 +128,7 @@ const modal = document.getElementById("gallery-modal");
 const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-description");
 const modalBrands = document.getElementById("modal-brands");
+const modalCount = document.getElementById("modal-count");
 const modalGallery = document.getElementById("modal-gallery");
 const closeBtn = document.querySelector(".close-btn");
 
@@ -177,96 +178,132 @@ async function openGallery(style) {
     modalTitle.textContent = style.name;
     modalDesc.textContent = style.description;
     modalBrands.textContent = `Representative Brands: ${style.brands}`;
+    modalCount.textContent = "Loading curated fashion references...";
     modalGallery.innerHTML = "";
 
     openModal();
 
-    const jobs = [];
-    for (let index = 0; index < IMAGES_PER_STYLE; index += 1) {
-        jobs.push(renderImageCell(style, index, token));
+    const references = await fetchFashionReferences(style, token);
+    if (token !== activeGalleryToken) {
+        return;
     }
 
-    await Promise.allSettled(jobs);
+    modalCount.textContent = `${references.length} curated references with source credit`;
+
+    if (references.length === 0) {
+        modalGallery.innerHTML = '<p class="empty-state">패션 이미지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+        return;
+    }
+
+    references.slice(0, IMAGES_PER_STYLE).forEach((reference, index) => {
+        renderReferenceCell(style, reference, index, token);
+    });
 }
 
-async function renderImageCell(style, index, token) {
+async function fetchFashionReferences(style, token) {
+    const queries = buildOpenverseQueries(style);
+    const seen = new Set();
+    const results = [];
+
+    for (const query of queries) {
+        for (let page = 1; page <= 8; page += 1) {
+            if (token !== activeGalleryToken || results.length >= IMAGES_PER_STYLE) {
+                return results;
+            }
+
+            const endpoint = `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page=${page}&page_size=20&license=by,by-sa,cc0,pdm,by-nc,by-nc-sa&mature=false`;
+            const payload = await fetchJson(endpoint);
+            if (!payload || !Array.isArray(payload.results) || payload.results.length === 0) {
+                break;
+            }
+
+            for (const item of payload.results) {
+                if (token !== activeGalleryToken || results.length >= IMAGES_PER_STYLE) {
+                    return results;
+                }
+
+                if (!isFashionRelevant(item)) {
+                    continue;
+                }
+
+                const key = item.id || item.url;
+                if (!key || seen.has(key)) {
+                    continue;
+                }
+
+                seen.add(key);
+                results.push({
+                    title: item.title || `${style.name} reference`,
+                    creator: item.creator || "Unknown creator",
+                    provider: item.provider || item.source || "Openverse",
+                    license: formatLicense(item.license, item.license_version),
+                    sourceUrl: item.foreign_landing_url || item.url,
+                    imageUrl: item.url,
+                    fallbackUrl: item.thumbnail || null
+                });
+            }
+        }
+    }
+
+    return results;
+}
+
+function buildOpenverseQueries(style) {
+    const normalizedStyle = style.name.toLowerCase().replace(/\s*\/\s*/g, " ").replace(/\s+/g, " ").trim();
+    const leadBrand = style.brands.split(",")[0].trim().toLowerCase();
+    return [
+        `fashion ${normalizedStyle} runway editorial lookbook street style`,
+        `fashion ${leadBrand} runway editorial campaign model`,
+        `fashion ${normalizedStyle} outfit designer collection`
+    ];
+}
+
+async function renderReferenceCell(style, reference, index, token) {
     if (token !== activeGalleryToken) {
         return;
     }
 
     const container = document.createElement("div");
     container.className = "gallery-item-container";
-    container.innerHTML = '<div class="loader"></div><p class="status-note">Loading</p>';
+    container.innerHTML = `
+        <div class="gallery-media">
+            <div class="loader"></div>
+            <p class="status-note">Loading</p>
+        </div>
+    `;
     modalGallery.appendChild(container);
 
-    const urls = buildImageSourceChain(style, index);
-
-    for (let attempt = 0; attempt < urls.length; attempt += 1) {
-        if (token !== activeGalleryToken) {
-            return;
-        }
-
-        const loaded = await loadImage(urls[attempt], 15000);
-        if (loaded) {
-            loaded.className = "gallery-item";
-            loaded.alt = `${style.name} reference ${index + 1}`;
-            container.innerHTML = "";
-            container.appendChild(loaded);
-            return;
-        }
-
-        const note = container.querySelector(".status-note");
-        if (note) {
-            note.textContent = attempt < urls.length - 1 ? "Retrying source" : "Unavailable";
-        }
+    const media = container.querySelector(".gallery-media");
+    const loaded = await loadImage(reference.imageUrl, 12000) || await loadImage(reference.fallbackUrl, 12000);
+    if (!loaded || token !== activeGalleryToken) {
+        container.innerHTML = '<p class="empty-credit">Image unavailable</p>';
+        return;
     }
-}
 
-function buildImageSourceChain(style, index) {
-    const hashSeed = hashCode(`${style.name}-${style.aesthetic}-${index}`);
-    const seedA = Math.abs(hashSeed) % 1000000;
-    const seedB = (seedA + 179) % 1000000;
-    const normalizedStyle = style.name.toLowerCase().replace(/\s*\/\s*/g, " ").replace(/\s+/g, " ");
-    const leadBrand = style.brands.split(",")[0].trim().toLowerCase();
+    loaded.className = "gallery-item";
+    loaded.alt = `${style.name} reference ${index + 1}`;
+    media.innerHTML = "";
+    media.appendChild(loaded);
 
-    const editorialQuery = encodeURIComponent([
-        "fashion",
-        normalizedStyle,
-        "editorial",
-        "runway",
-        "brand campaign",
-        "lookbook",
-        "model outfit"
-    ].join(","));
-
-    const brandQuery = encodeURIComponent([
-        "fashion",
-        leadBrand,
-        "editorial",
-        "runway",
-        normalizedStyle,
-        "lookbook"
-    ].join(","));
-
-    const moodQuery = encodeURIComponent([
-        "fashion mood",
-        normalizedStyle,
-        "street style",
-        "designer",
-        "outfit reference"
-    ].join(","));
-
-    const unsplashEditorial = `https://source.unsplash.com/600x900/?${editorialQuery}&sig=${seedA}`;
-    const unsplashBrand = `https://source.unsplash.com/600x900/?${brandQuery}&sig=${seedB}`;
-    const unsplashMood = `https://source.unsplash.com/600x900/?${moodQuery}&sig=${seedA + seedB}`;
-
-    const flickrFashion = `https://loremflickr.com/600/900/fashion,editorial,runway,lookbook?lock=${seedA}`;
-    const flickrStyle = `https://loremflickr.com/600/900/fashion,style,outfit,model?lock=${seedB}`;
-
-    return [unsplashEditorial, unsplashBrand, unsplashMood, flickrFashion, flickrStyle];
+    const credit = document.createElement("p");
+    credit.className = "image-credit";
+    const link = document.createElement("a");
+    link.href = reference.sourceUrl || reference.imageUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = reference.title;
+    const meta = document.createElement("span");
+    meta.textContent = `${reference.creator} · ${reference.provider} · ${reference.license}`;
+    credit.appendChild(link);
+    credit.appendChild(meta);
+    container.appendChild(credit);
 }
 
 function loadImage(src, timeoutMs) {
+    if (!src) {
+        return Promise.resolve(null);
+    }
+
     return new Promise((resolve) => {
         const image = new Image();
         image.referrerPolicy = "no-referrer";
@@ -291,13 +328,46 @@ function loadImage(src, timeoutMs) {
     });
 }
 
-function hashCode(text) {
-    let hash = 0;
-    for (let i = 0; i < text.length; i += 1) {
-        hash = (hash << 5) - hash + text.charCodeAt(i);
-        hash |= 0;
+async function fetchJson(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        return null;
     }
-    return hash;
+}
+
+function isFashionRelevant(item) {
+    const text = [
+        item.title || "",
+        ...(item.tags || []).map((tag) => tag.name || "")
+    ].join(" ").toLowerCase();
+
+    const mustInclude = [
+        "fashion", "runway", "editorial", "lookbook", "style", "outfit", "garment", "couture", "model", "streetwear", "designer"
+    ];
+    const blockList = [
+        "cat", "kitten", "dog", "puppy", "bird", "flower", "landscape", "food", "vehicle", "motorcycle"
+    ];
+
+    if (!mustInclude.some((token) => text.includes(token))) {
+        return false;
+    }
+    if (blockList.some((token) => text.includes(token))) {
+        return false;
+    }
+
+    const width = Number(item.width || 0);
+    const height = Number(item.height || 0);
+    return width >= 300 && height >= 450;
+}
+
+function formatLicense(license, version) {
+    const upper = (license || "unknown").toUpperCase();
+    return version ? `${upper} ${version}` : upper;
 }
 
 closeBtn.addEventListener("click", closeModal);
