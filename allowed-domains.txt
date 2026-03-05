@@ -24,3 +24,5 @@ vogue.com
 wwd.com
 anothermag.com
 i-d.co
+api.openverse.org
+openverse.org
