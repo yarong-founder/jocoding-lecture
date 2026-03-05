@@ -1,45 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Style Reference</title>
-    <link rel="stylesheet" href="style.css?v=2.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Style Explorer</title>
+  <link rel="icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-    <header class="header">
-        <p class="eyebrow">Fashion Archive / 20 Styles</p>
-        <h1 class="logo">trans_ the border</h1>
-        <p class="subtitle">카테고리를 선택하면 라이선스 확인된 패션 에디토리얼/룩북 레퍼런스 50장을 확인할 수 있습니다.</p>
-    </header>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div>
+        <div class="brand">Style Explorer</div>
+        <div class="subtitle">이미지 기반으로 스타일을 탐색하고, 클릭하면 원본 소스와 관련 힌트를 확인합니다.</div>
+      </div>
 
-    <main class="container">
-        <section>
-            <div class="section-head">
-                <h2>Style Categories</h2>
-                <p id="selection-hint">카드를 클릭해 갤러리를 열어보세요.</p>
-            </div>
-            <div id="style-grid" class="style-grid" role="list"></div>
-        </section>
-    </main>
-
-    <div id="gallery-modal" class="modal" aria-hidden="true">
-        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <button class="close-btn" type="button" aria-label="갤러리 닫기">Close</button>
-            <div id="modal-header">
-                <h2 id="modal-title"></h2>
-                <p id="modal-description"></p>
-                <p id="modal-brands"></p>
-                <p id="modal-count">50 curated references</p>
-            </div>
-            <div id="modal-gallery" class="gallery-grid"></div>
-        </div>
+      <nav class="nav">
+        <a class="nav__link" href="#/">Home</a>
+        <a class="nav__link" href="#/bookmarks">Bookmarks</a>
+      </nav>
     </div>
+  </header>
 
-    <footer class="footer">
-        <p>&copy; 2026 trans_ the border. Monotone Minimalist Archive.</p>
-    </footer>
+  <main class="container" id="app"></main>
 
-    <script src="main.js?v=2.0"></script>
+  <!-- Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__overlay" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__header">
+        <div>
+          <div class="modal__title" id="modalTitle">Title</div>
+          <div class="modal__meta" id="modalMeta">Source</div>
+        </div>
+        <button class="btn btn--ghost" id="modalClose">Close</button>
+      </div>
+
+      <div class="modal__body">
+        <div class="modal__thumb" id="modalThumb"></div>
+
+        <div class="section">
+          <div class="section__title">Look breakdown</div>
+          <ul class="list" id="modalItems"></ul>
+        </div>
+
+        <div class="section" id="modalBrandsWrap" style="display:none;">
+          <div class="section__title">Related brands</div>
+          <div class="chips" id="modalBrands"></div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn" id="modalBookmark">Bookmark</button>
+        <a class="btn btn--primary" id="modalVisit" href="#" target="_blank" rel="noreferrer">View original →</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
 </body>
 </html>

@@ -1,423 +1,418 @@
-const IMAGES_PER_STYLE = 50;
+/**
+ * Step1 MVP (Static SPA)
+ * - Home: style cards
+ * - Style page: masonry look grid
+ * - Look click: modal (breakdown + brands + original link)
+ * - Bookmarks: localStorage
+ */
 
-const fashionStyles = [
-    {
-        name: "Classic",
-        description: "정제된 실루엣, 유행에 흔들리지 않는 포멀함.",
-        brands: "Armani, Ralph Lauren Purple Label",
-        aesthetic: "timeless tailoring monochrome editorial luxury lookbook"
-    },
-    {
-        name: "Old Money",
-        description: "로고 없는 럭셔리, 최고급 소재와 우아한 무드.",
-        brands: "Loro Piana, Brunello Cucinelli, The Row",
-        aesthetic: "quiet luxury heritage mansion neutrals editorial campaign"
-    },
-    {
-        name: "Minimalist",
-        description: "극도의 단순함, 정갈한 핏과 무채색 위주의 구성.",
-        brands: "Jil Sander, Lemaire, COS",
-        aesthetic: "minimal fashion silhouette clean line studio lookbook"
-    },
-    {
-        name: "Ivy League",
-        description: "50-60년대 미 동부 대학생들의 보수적이고 단정한 룩.",
-        brands: "Brooks Brothers, J.Press",
-        aesthetic: "ivy campus prep tailoring heritage collegiate editorial"
-    },
-    {
-        name: "Preppy",
-        description: "아이비 룩에 경쾌한 색감과 스포티함을 더한 스타일.",
-        brands: "Polo Ralph Lauren, Tommy Hilfiger",
-        aesthetic: "preppy sport casual luxury campus lookbook"
-    },
-    {
-        name: "City Boy",
-        description: "오버사이즈와 레이어드, 여유로운 도시적 캐주얼.",
-        brands: "Nanamica, Beams, Nautica (JP)",
-        aesthetic: "tokyo street layering oversized city mood editorial"
-    },
-    {
-        name: "Gorpcore",
-        description: "아웃도어 의류를 일상에서 감각적으로 매치한 기능적 룩.",
-        brands: "Arc'teryx, Salomon, And Wander",
-        aesthetic: "outdoor utility shell technical mountain city style"
-    },
-    {
-        name: "Workwear",
-        description: "거칠고 튼튼한 소재(데님, 덕 캔버스)의 실용적 디자인.",
-        brands: "Carhartt WIP, Dickies, Red Wing",
-        aesthetic: "heritage denim rugged worker garment detail"
-    },
-    {
-        name: "Military",
-        description: "군복의 디테일을 현대적인 패션 요소로 재해석.",
-        brands: "Engineered Garments, Alpha Industries",
-        aesthetic: "military utility jacket cargo contemporary runway"
-    },
-    {
-        name: "Techwear",
-        description: "기능성 원단, 다기능 포켓, 미래지향적 사이버펑크 무드.",
-        brands: "Acronym, Stone Island Shadow Project",
-        aesthetic: "techwear futuristic utility black tactical city"
-    },
-    {
-        name: "Streetwear",
-        description: "서브컬처 기반, 그래픽 티셔츠와 스니커즈 중심의 문화.",
-        brands: "Supreme, Stüssy, Off-White",
-        aesthetic: "street culture sneaker hype editorial urban"
-    },
-    {
-        name: "Skater",
-        description: "보더들의 활동성을 고려한 헐렁한 바지와 플랫 슈즈.",
-        brands: "Vans, Palace, Dickies 874",
-        aesthetic: "skate park youth loose fit candid street"
-    },
-    {
-        name: "Normcore",
-        description: "평범함을 스타일로 승화시킨 편안하고 일상적인 룩.",
-        brands: "Uniqlo, Gap, New Balance",
-        aesthetic: "everyday basics ordinary cool neutral wardrobe"
-    },
-    {
-        name: "Y2K",
-        description: "2000년대 초반의 화려하고 실험적인 키치함.",
-        brands: "Diesel, Blumarine, Juicy Couture",
-        aesthetic: "y2k retro futuristic glossy pop lookbook"
-    },
-    {
-        name: "French Chic",
-        description: "인위적이지 않은 세련미, 무심하게 입은 듯한 우아함.",
-        brands: "A.P.C., Celine, Rouje",
-        aesthetic: "paris effortless chic understated street editorial"
-    },
-    {
-        name: "Grunge",
-        description: "90년대 록 문화 기반의 거칠고 빈티지한 레이어드.",
-        brands: "Rick Owens, Saint Laurent (Hedi Era)",
-        aesthetic: "grunge distressed layering rock nineties mood"
-    },
-    {
-        name: "Bohemian",
-        description: "자유로운 패턴, 에스닉한 디테일, 흐르는 듯한 실루엣.",
-        brands: "Isabel Marant, Chloé",
-        aesthetic: "bohemian flowing fabric handcrafted detail romantic"
-    },
-    {
-        name: "Avant-garde",
-        description: "패션의 고정관념을 깨는 실험적이고 해학적인 구조.",
-        brands: "Comme des Garçons, Yohji Yamamoto",
-        aesthetic: "avant garde conceptual dramatic silhouette runway"
-    },
-    {
-        name: "Maximalism",
-        description: "\"More is More\", 과감한 색채와 화려한 패턴의 조화.",
-        brands: "Gucci (Alessandro Michele Era), Kenzo",
-        aesthetic: "maximal pattern layered ornament bold fashion"
-    },
-    {
-        name: "Vintage / Retro",
-        description: "특정 시대를 연상시키는 향수 어린 복고적 감성.",
-        brands: "Levi's Vintage Clothing, Adidas Originals",
-        aesthetic: "vintage archival retro era inspired lookbook"
-    }
+const app = document.getElementById("app");
+
+// ====== DATA ======
+const STYLES = [
+  { slug:"classic", name:"Classic",
+    description:"Timeless tailored menswear built on clean silhouettes and heritage pieces.",
+    keywords:["tailoring","timeless","neutral"], brands:["Ralph Lauren","Brooks Brothers","J.Crew"],
+    related:["old-money","preppy","minimalism"], looks:[]
+  },
+  { slug:"old-money", name:"Old Money",
+    description:"Heritage luxury style with understated elegance and classic tailoring.",
+    keywords:["heritage","understated","luxury"], brands:["Loro Piana","Brunello Cucinelli","The Row"],
+    related:["classic","french-chic","preppy"], looks:[]
+  },
+  { slug:"minimalism", name:"Minimalism",
+    description:"Clean silhouettes and neutral tones focusing on simplicity.",
+    keywords:["clean","neutral","simple"], brands:["Jil Sander","COS","Auralee"],
+    related:["normcore","contemporary","classic"], looks:[]
+  },
+  { slug:"preppy", name:"Preppy",
+    description:"Ivy league inspired casual tailoring with American heritage roots.",
+    keywords:["ivy","heritage","layered"], brands:["Polo Ralph Lauren","GANT","Tommy Hilfiger"],
+    related:["classic","old-money","city-boy"], looks:[]
+  },
+  { slug:"city-boy", name:"City Boy",
+    description:"Japanese urban casual style blending relaxed tailoring and street comfort.",
+    keywords:["urban","relaxed","casual"], brands:["BEAMS","Nanamica","Uniqlo U"],
+    related:["normcore","minimalism","gorpcore"], looks:[]
+  },
+  { slug:"gorpcore", name:"Gorpcore",
+    description:"Technical outdoor clothing reinterpreted for urban everyday wear.",
+    keywords:["technical","outdoor","utility"], brands:["Arc'teryx","Salomon","Patagonia","And Wander"],
+    related:["workwear","military","city-boy"], looks:[]
+  },
+  { slug:"workwear", name:"Workwear",
+    description:"Rugged garments rooted in American labor clothing traditions.",
+    keywords:["rugged","denim","heritage"], brands:["Carhartt WIP","Dickies","Levi's"],
+    related:["military","vintage","gorpcore"], looks:[]
+  },
+  { slug:"military", name:"Military",
+    description:"Utility-driven garments inspired by army surplus and tactical clothing.",
+    keywords:["utility","olive","cargo"], brands:["Alpha Industries","Buzz Rickson’s","Rothco"],
+    related:["workwear","gorpcore","vintage"], looks:[]
+  },
+  { slug:"contemporary", name:"Contemporary",
+    description:"Modern fashion-forward casual with clean silhouettes and tailoring.",
+    keywords:["modern","clean","tailored"], brands:["Acne Studios","AMI Paris","Theory"],
+    related:["minimalism","classic","avant-garde"], looks:[]
+  },
+  { slug:"streetwear", name:"Streetwear",
+    description:"Culture-driven style rooted in skate, hip-hop and sneaker communities.",
+    keywords:["oversized","graphics","sneakers"], brands:["Supreme","Stüssy","BAPE"],
+    related:["skater","y2k","grunge"], looks:[]
+  },
+  { slug:"skater", name:"Skater",
+    description:"Laid-back skate culture aesthetic built on baggy silhouettes.",
+    keywords:["baggy","casual","skate"], brands:["Vans","Polar Skate Co.","Thrasher"],
+    related:["streetwear","grunge","normcore"], looks:[]
+  },
+  { slug:"normcore", name:"Normcore",
+    description:"Deliberately ordinary clothing emphasizing comfort and simplicity.",
+    keywords:["basic","everyday","functional"], brands:["Uniqlo","GAP","New Balance"],
+    related:["minimalism","city-boy","classic"], looks:[]
+  },
+  { slug:"y2k", name:"Y2K",
+    description:"Early 2000s inspired fashion featuring bold silhouettes and accessories.",
+    keywords:["retro","bold","2000s"], brands:["Diesel","Ed Hardy","Von Dutch"],
+    related:["streetwear","maximalism","vintage"], looks:[]
+  },
+  { slug:"french-chic", name:"French Chic",
+    description:"Effortless Parisian elegance mixing simplicity with subtle sophistication.",
+    keywords:["effortless","elegant","parisian"], brands:["A.P.C.","Sandro","Maje","Sézane"],
+    related:["classic","old-money","minimalism"], looks:[]
+  },
+  { slug:"grunge", name:"Grunge",
+    description:"90s rebellious style: distressed fabrics, layering, raw attitude.",
+    keywords:["distressed","layered","raw"], brands:["Dr. Martens","Converse","AllSaints"],
+    related:["punk","streetwear","vintage"], looks:[]
+  },
+  { slug:"bohemian", name:"Bohemian",
+    description:"Free-spirited aesthetic with flowing fabrics and artistic expression.",
+    keywords:["flowing","earthy","artistic"], brands:["Isabel Marant","Etro","Free People"],
+    related:["maximalism","vintage","french-chic"], looks:[]
+  },
+  { slug:"avant-garde", name:"Avant-garde",
+    description:"Experimental fashion pushing the boundaries of form and silhouette.",
+    keywords:["experimental","conceptual","silhouette"], brands:["Rick Owens","Comme des Garçons","Yohji Yamamoto"],
+    related:["contemporary","maximalism","minimalism"], looks:[]
+  },
+  { slug:"maximalism", name:"Maximalism",
+    description:"Bold, colorful, expressive fashion celebrating visual intensity.",
+    keywords:["bold","pattern","layered"], brands:["Gucci","Versace","Marni"],
+    related:["avant-garde","y2k","bohemian"], looks:[]
+  },
+  { slug:"vintage", name:"Vintage",
+    description:"Retro-inspired fashion drawing influence from past decades.",
+    keywords:["retro","thrift","heritage"], brands:["Levi’s (vintage)","Ralph Lauren (vintage)"],
+    related:["grunge","workwear","y2k"], looks:[]
+  },
+  { slug:"punk", name:"Punk",
+    description:"Raw rebellious style influenced by punk rock culture.",
+    keywords:["leather","studs","rebellion"], brands:["Vivienne Westwood","Dr. Martens"],
+    related:["grunge","streetwear","avant-garde"], looks:[]
+  },
 ];
 
-const styleGrid = document.getElementById("style-grid");
-const modal = document.getElementById("gallery-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalDesc = document.getElementById("modal-description");
-const modalBrands = document.getElementById("modal-brands");
-const modalCount = document.getElementById("modal-count");
-const modalGallery = document.getElementById("modal-gallery");
-const closeBtn = document.querySelector(".close-btn");
+// 샘플 look 2개만 넣어둠(동작 확인용). 형님이 수집한 링크로 계속 추가하면 됨.
+seedLooks("gorpcore", [
+  {
+    id:"gorpcore-001",
+    title:"Urban hiking layering",
+    sourceName:"Sample",
+    sourceUrl:"https://example.com",
+    thumbnailUrl:"", // 나중에 썸네일 URL 넣으면 이미지가 뜸
+    items:["shell jacket","technical pants","trail shoes","cap"],
+    brands:["Arc’teryx","Salomon"]
+  },
+  {
+    id:"gorpcore-002",
+    title:"Earth-tone technical mix",
+    sourceName:"Sample",
+    sourceUrl:"https://example.com",
+    thumbnailUrl:"",
+    items:["fleece","cargo pants","trail shoes"],
+    brands:["Patagonia"]
+  }
+]);
 
-const CURATED_REFERENCE_CSV_URL = "./approved-sources.csv?v=1";
-let activeGalleryToken = 0;
-let curatedRowsPromise = null;
-
-function init() {
-    fashionStyles.forEach((style) => {
-        const card = document.createElement("article");
-        card.className = "style-card";
-        card.setAttribute("role", "listitem");
-        card.setAttribute("tabindex", "0");
-        card.innerHTML = `
-            <h3 class="style-name">${style.name}</h3>
-            <p class="style-description">${style.description}</p>
-            <p class="style-brands">Brands: ${style.brands}</p>
-        `;
-
-        card.addEventListener("click", () => openGallery(style));
-        card.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                openGallery(style);
-            }
-        });
-
-        styleGrid.appendChild(card);
-    });
+function seedLooks(styleSlug, looks){
+  const s = STYLES.find(x => x.slug === styleSlug);
+  if (!s) return;
+  s.looks = (s.looks || []).concat(looks);
 }
 
-function openModal() {
-    modal.style.display = "block";
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+// ====== BOOKMARKS ======
+const BM_KEY = "style_explorer_bookmarks_v1";
+
+function loadBookmarks(){
+  try{
+    return JSON.parse(localStorage.getItem(BM_KEY) || "[]");
+  }catch{
+    return [];
+  }
 }
 
-function closeModal() {
-    modal.style.display = "none";
-    modal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-    activeGalleryToken += 1;
+function saveBookmarks(items){
+  localStorage.setItem(BM_KEY, JSON.stringify(items));
 }
 
-async function openGallery(style) {
-    activeGalleryToken += 1;
-    const token = activeGalleryToken;
-
-    modalTitle.textContent = style.name;
-    modalDesc.textContent = style.description;
-    modalBrands.textContent = `Representative Brands: ${style.brands}`;
-    modalCount.textContent = "Loading approved official references...";
-    modalGallery.innerHTML = "";
-
-    openModal();
-
-    const references = await fetchCuratedReferences(style, token);
-    if (token !== activeGalleryToken) {
-        return;
-    }
-
-    modalCount.textContent = `${references.length} approved references with source credit`;
-
-    if (references.length === 0) {
-        modalGallery.innerHTML = "<p class=\"empty-state\">이 카테고리에 승인된 공식 이미지가 아직 없습니다.</p>";
-        return;
-    }
-
-    references.slice(0, IMAGES_PER_STYLE).forEach((reference, index) => {
-        renderReferenceCell(style, reference, index, token);
-    });
+function isBookmarked(bms, styleSlug, lookId){
+  return bms.some(x => x.styleSlug === styleSlug && x.lookId === lookId);
 }
 
-async function fetchCuratedReferences(style, token) {
-    const rows = await loadCuratedRows();
-    if (token !== activeGalleryToken) {
-        return [];
-    }
-
-    const styleKey = normalizeCategory(style.name);
-    return rows
-        .filter((row) => normalizeCategory(row.category) === styleKey)
-        .slice(0, IMAGES_PER_STYLE);
+function toggleBookmark(bms, styleSlug, look){
+  const exists = isBookmarked(bms, styleSlug, look.id);
+  if (exists) return bms.filter(x => !(x.styleSlug === styleSlug && x.lookId === look.id));
+  return [{
+    styleSlug,
+    lookId: look.id,
+    title: look.title,
+    sourceName: look.sourceName,
+    sourceUrl: look.sourceUrl,
+    thumbnailUrl: look.thumbnailUrl || ""
+  }, ...bms];
 }
 
-async function loadCuratedRows() {
-    if (!curatedRowsPromise) {
-        curatedRowsPromise = fetchCuratedRowsFromCsv();
-    }
-    return curatedRowsPromise;
+// ====== ROUTER ======
+window.addEventListener("hashchange", render);
+render();
+
+function parseRoute(){
+  const hash = (location.hash || "#/").slice(1); // remove '#'
+  const parts = hash.split("/").filter(Boolean);
+  // "/" => []
+  // "/style/gorpcore" => ["style","gorpcore"]
+  // "/bookmarks" => ["bookmarks"]
+  return parts;
 }
 
-async function fetchCuratedRowsFromCsv() {
-    try {
-        const response = await fetch(CURATED_REFERENCE_CSV_URL, { cache: "no-store" });
-        if (!response.ok) {
-            return [];
-        }
-
-        const csvText = await response.text();
-        const parsed = parseCsv(csvText);
-        if (parsed.length < 2) {
-            return [];
-        }
-
-        const [header, ...body] = parsed;
-        const columnMap = {};
-        header.forEach((name, index) => {
-            columnMap[String(name || "").trim().toLowerCase()] = index;
-        });
-
-        return body
-            .map((row) => mapCsvRow(row, columnMap))
-            .filter((row) => isValidCuratedRow(row));
-    } catch (error) {
-        return [];
-    }
+function render(){
+  const parts = parseRoute();
+  if (parts.length === 0){
+    return renderHome();
+  }
+  if (parts[0] === "style" && parts[1]){
+    return renderStyle(parts[1]);
+  }
+  if (parts[0] === "bookmarks"){
+    return renderBookmarks();
+  }
+  return renderNotFound();
 }
 
-function mapCsvRow(row, columnMap) {
-    const read = (name) => {
-        const index = columnMap[name];
-        if (index === undefined) {
-            return "";
-        }
-        return String(row[index] || "").trim();
-    };
+// ====== VIEWS ======
+function renderHome(){
+  const cards = STYLES.map(s => `
+    <a class="card" href="#/style/${escapeHtml(s.slug)}">
+      <div class="card__title">${escapeHtml(s.name)}</div>
+      <div class="card__desc">${escapeHtml(s.description)}</div>
+      <div class="chips">
+        ${s.keywords.slice(0,3).map(k => `<span class="chip">${escapeHtml(k)}</span>`).join("")}
+      </div>
+    </a>
+  `).join("");
 
-    return {
-        category: read("category"),
-        brand: read("brand"),
-        imageUrl: read("image_url"),
-        sourceUrl: read("source_url"),
-        sourceName: read("source_name") || "Source",
-        title: read("title") || "Editorial / Lookbook",
-        creator: read("creator") || "Unknown creator",
-        license: read("license") || "Usage per original source",
-        usageNote: read("usage_note"),
-        approved: read("approved").toLowerCase() === "yes"
-    };
-}
-
-function isValidCuratedRow(row) {
-    if (!row.approved) {
-        return false;
-    }
-    if (!row.category || !row.brand || !row.imageUrl || !row.sourceUrl || !row.sourceName || !row.usageNote) {
-        return false;
-    }
-    try {
-        new URL(row.imageUrl);
-        new URL(row.sourceUrl);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-function normalizeCategory(value) {
-    return String(value || "")
-        .toLowerCase()
-        .replace(/\s*\/\s*/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function parseCsv(text) {
-    const rows = [];
-    let row = [];
-    let field = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < text.length; i += 1) {
-        const char = text[i];
-        const next = text[i + 1];
-
-        if (char === "\"") {
-            if (inQuotes && next === "\"") {
-                field += "\"";
-                i += 1;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === "," && !inQuotes) {
-            row.push(field);
-            field = "";
-        } else if ((char === "\n" || char === "\r") && !inQuotes) {
-            if (char === "\r" && next === "\n") {
-                i += 1;
-            }
-            row.push(field);
-            rows.push(row);
-            row = [];
-            field = "";
-        } else {
-            field += char;
-        }
-    }
-
-    if (field.length > 0 || row.length > 0) {
-        row.push(field);
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-async function renderReferenceCell(style, reference, index, token) {
-    if (token !== activeGalleryToken) {
-        return;
-    }
-
-    const container = document.createElement("div");
-    container.className = "gallery-item-container";
-    container.innerHTML = `
-        <div class="gallery-media">
-            <div class="loader"></div>
-            <p class="status-note">Loading</p>
+  app.innerHTML = `
+    <div class="grid">${cards}</div>
+    <div class="section">
+      <div class="empty">
+        <div><b>다음 단계</b></div>
+        <div style="margin-top:6px;">
+          각 스타일의 <code>looks</code> 배열에 레퍼런스를 추가하면 Pinterest형 그리드가 채워집니다.<br/>
+          (main.js 상단의 STYLES 데이터에서 해당 스타일의 looks에 추가)
         </div>
-    `;
-    modalGallery.appendChild(container);
-
-    const media = container.querySelector(".gallery-media");
-    const loaded = await loadImage(reference.imageUrl, 12000);
-    if (!loaded || token !== activeGalleryToken) {
-        container.innerHTML = '<p class="empty-credit">Image unavailable</p>';
-        return;
-    }
-
-    loaded.className = "gallery-item";
-    loaded.alt = `${style.name} reference ${index + 1}`;
-    media.innerHTML = "";
-    media.appendChild(loaded);
-
-    const credit = document.createElement("p");
-    credit.className = "image-credit";
-    const link = document.createElement("a");
-    link.href = reference.sourceUrl || reference.imageUrl;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = reference.title;
-    const meta = document.createElement("span");
-    meta.textContent = `${reference.brand} · ${reference.creator} · ${reference.sourceName} · ${reference.license}`;
-    credit.appendChild(link);
-    credit.appendChild(meta);
-    container.appendChild(credit);
+      </div>
+    </div>
+  `;
 }
 
-function loadImage(src, timeoutMs) {
-    if (!src) {
-        return Promise.resolve(null);
-    }
+function renderStyle(slug){
+  const style = STYLES.find(s => s.slug === slug);
+  if (!style) return renderNotFound();
 
-    return new Promise((resolve) => {
-        const image = new Image();
-        image.referrerPolicy = "no-referrer";
+  const related = (style.related || []).map(rs => {
+    const r = STYLES.find(x => x.slug === rs);
+    return `<a class="chip" href="#/style/${escapeHtml(rs)}">${escapeHtml(r ? r.name : rs)}</a>`;
+  }).join("");
 
-        const timer = setTimeout(() => {
-            image.onload = null;
-            image.onerror = null;
-            resolve(null);
-        }, timeoutMs);
+  const brandChips = (style.brands || []).map(b => `<span class="chip">${escapeHtml(b)}</span>`).join("");
 
-        image.onload = () => {
-            clearTimeout(timer);
-            resolve(image);
-        };
+  const looksHtml = (style.looks || []).map(l => `
+    <div class="masonry__item">
+      <div class="look" data-style="${escapeHtml(style.slug)}" data-look="${escapeHtml(l.id)}">
+        <div class="look__thumb">
+          ${l.thumbnailUrl ? `<img src="${escapeAttr(l.thumbnailUrl)}" alt="${escapeAttr(l.title)}" />` : `No thumbnail yet`}
+        </div>
+        <div class="look__body">
+          <div class="look__title">${escapeHtml(l.title)}</div>
+          <div class="look__meta">${escapeHtml(l.sourceName)}</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
 
-        image.onerror = () => {
-            clearTimeout(timer);
-            resolve(null);
-        };
+  app.innerHTML = `
+    <div class="pagehead">
+      <div>
+        <div><a class="nav__link" href="#/">← Back</a></div>
+        <h1 class="h1" style="margin-top:10px;">${escapeHtml(style.name)}</h1>
+        <p class="p">${escapeHtml(style.description)}</p>
+      </div>
+      <a class="nav__link" href="#/bookmarks">Bookmarks</a>
+    </div>
 
-        image.src = src;
+    <div class="section kv">
+      <div class="section__title">Keywords</div>
+      <div class="chips">${style.keywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join("")}</div>
+
+      <div class="section" style="margin-top:14px;">
+        <div class="section__title">Representative brands</div>
+        <div class="chips">${brandChips}</div>
+      </div>
+
+      ${related ? `
+      <div class="section" style="margin-top:14px;">
+        <div class="section__title">Related styles</div>
+        <div class="chips">${related}</div>
+      </div>` : ``}
+    </div>
+
+    <div class="section">
+      <div class="section__title">Inspiration (${(style.looks||[]).length})</div>
+      ${style.looks && style.looks.length ? `
+        <div class="masonry">${looksHtml}</div>
+      ` : `
+        <div class="empty">
+          아직 Looks가 없습니다. main.js에서 <code>${escapeHtml(style.slug)}</code> 스타일의 <code>looks</code> 배열에 레퍼런스를 추가하세요.
+        </div>
+      `}
+    </div>
+  `;
+
+  // bind clicks
+  document.querySelectorAll(".look").forEach(el => {
+    el.addEventListener("click", () => {
+      const sSlug = el.getAttribute("data-style");
+      const lookId = el.getAttribute("data-look");
+      const st = STYLES.find(x => x.slug === sSlug);
+      const lk = st?.looks?.find(x => x.id === lookId);
+      if (st && lk) openModal(st.slug, lk);
     });
+  });
 }
 
-closeBtn.addEventListener("click", closeModal);
+function renderBookmarks(){
+  const bms = loadBookmarks();
 
-window.addEventListener("click", (event) => {
-    if (event.target === modal) {
-        closeModal();
-    }
+  const cards = bms.map(b => `
+    <a class="card" href="${escapeAttr(b.sourceUrl)}" target="_blank" rel="noreferrer">
+      <div class="card__title">${escapeHtml(b.title)}</div>
+      <div class="card__desc">${escapeHtml(b.sourceName)} · Style: ${escapeHtml(b.styleSlug)}</div>
+    </a>
+  `).join("");
+
+  app.innerHTML = `
+    <div class="pagehead">
+      <div>
+        <div><a class="nav__link" href="#/">← Back</a></div>
+        <h1 class="h1" style="margin-top:10px;">Bookmarks</h1>
+        <p class="p">저장한 룩을 다시 확인하세요.</p>
+      </div>
+      <button class="btn" id="clearBm">Clear all</button>
+    </div>
+
+    ${bms.length ? `<div class="grid">${cards}</div>` : `<div class="empty">저장된 항목이 없습니다. 룩을 클릭 후 Bookmark를 눌러보세요.</div>`}
+  `;
+
+  const btn = document.getElementById("clearBm");
+  btn?.addEventListener("click", () => {
+    saveBookmarks([]);
+    renderBookmarks();
+  });
+}
+
+function renderNotFound(){
+  app.innerHTML = `<div class="empty">페이지를 찾을 수 없습니다. <a href="#/">Home으로</a></div>`;
+}
+
+// ====== MODAL ======
+const modal = document.getElementById("modal");
+const modalClose = document.getElementById("modalClose");
+const modalTitle = document.getElementById("modalTitle");
+const modalMeta = document.getElementById("modalMeta");
+const modalThumb = document.getElementById("modalThumb");
+const modalItems = document.getElementById("modalItems");
+const modalBrandsWrap = document.getElementById("modalBrandsWrap");
+const modalBrands = document.getElementById("modalBrands");
+const modalVisit = document.getElementById("modalVisit");
+const modalBookmark = document.getElementById("modalBookmark");
+
+let currentModal = { styleSlug:null, look:null };
+
+modalClose.addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => {
+  const t = e.target;
+  if (t && t.dataset && t.dataset.close) closeModal();
 });
 
-window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal.style.display === "block") {
-        closeModal();
-    }
-});
+function openModal(styleSlug, look){
+  currentModal = { styleSlug, look };
 
-init();
+  modalTitle.textContent = look.title;
+  modalMeta.textContent = `Source: ${look.sourceName}`;
+  modalVisit.href = look.sourceUrl;
+
+  // thumb
+  modalThumb.innerHTML = look.thumbnailUrl
+    ? `<img src="${escapeAttr(look.thumbnailUrl)}" alt="${escapeAttr(look.title)}" />`
+    : `No thumbnail yet`;
+
+  // items
+  modalItems.innerHTML = "";
+  (look.items || []).forEach(x => {
+    const li = document.createElement("li");
+    li.textContent = x;
+    modalItems.appendChild(li);
+  });
+
+  // brands
+  if (look.brands && look.brands.length){
+    modalBrandsWrap.style.display = "block";
+    modalBrands.innerHTML = look.brands.map(b => `<span class="chip">${escapeHtml(b)}</span>`).join("");
+  } else {
+    modalBrandsWrap.style.display = "none";
+    modalBrands.innerHTML = "";
+  }
+
+  // bookmark button
+  const bms = loadBookmarks();
+  const marked = isBookmarked(bms, styleSlug, look.id);
+  modalBookmark.textContent = marked ? "Bookmarked" : "Bookmark";
+
+  modalBookmark.onclick = () => {
+    const now = loadBookmarks();
+    const next = toggleBookmark(now, styleSlug, look);
+    saveBookmarks(next);
+    const isNow = isBookmarked(next, styleSlug, look.id);
+    modalBookmark.textContent = isNow ? "Bookmarked" : "Bookmark";
+  };
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden","false");
+}
+
+function closeModal(){
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden","true");
+  currentModal = { styleSlug:null, look:null };
+}
+
+// ====== HELPERS ======
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function escapeAttr(str){ return escapeHtml(str); }
